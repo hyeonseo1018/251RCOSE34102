@@ -39,6 +39,11 @@ int main(){
   preemptiveSJF(processesOrigin,totalBurst);
   printf("\n------preemptivePriority---------------------------------------------------------------------------------------------\n");
   preemptivePriority(processesOrigin,totalBurst);
+  for(int i =0; i<PROCESSCOUNT; i++){
+    free(processesOrigin[i] -> process);
+    free(processesOrigin[i]);
+  }
+  free(processesOrigin);
   return 0;
 }
 

@@ -4,10 +4,8 @@
 
 void preemptiveSJF(NODE** processesOrigin,int totalBurst){
   int turnAroundTime = 0;
-  QUEUE* readyQueue = (QUEUE*)malloc(sizeof(QUEUE));
-  QUEUE* waitingQueue = (QUEUE*)malloc(sizeof(QUEUE));
-  readyQueue = createQueue();
-  waitingQueue = createQueue();
+  QUEUE* readyQueue = createQueue();
+  QUEUE* waitingQueue = createQueue();
   NODE** processes = copyProcesses(processesOrigin);
   int index = 0;
   int clock = 0;
@@ -50,6 +48,8 @@ void preemptiveSJF(NODE** processesOrigin,int totalBurst){
     
   }while(index < PROCESSCOUNT || readyQueue -> out != NULL || waitingQueue -> out != NULL);
   free(readyQueue);
+  free(waitingQueue);
+  free(processes);
   printf("\n");
   printf("turnaround time : %d\n",turnAroundTime);
   printf("waiting time : %d\n",turnAroundTime - totalBurst);
