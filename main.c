@@ -4,21 +4,22 @@
 #include <time.h>
 
 int main(){
-  const int processCount = 10;
-  NODE* processesOrigin[10];
+  NODE **processesOrigin = malloc(PROCESSCOUNT*sizeof(NODE*));
   PROCESS *ptr;
+  int totalBurst = 0;
+  int timeQuantum = 2;
   srand((unsigned int)time(NULL));
 
-  for(int i =0 ;i<processCount;i++){
-    int PID;
+  for(int i =0 ;i<PROCESSCOUNT;i++){
     NODE* newnode = (NODE*)malloc(sizeof(NODE));
     ptr = createProcess(i, rand()%10, rand()%15+1,rand()%3+1,rand()%10);
     newnode -> process = ptr;
     newnode -> next = NULL;
     processesOrigin[i] = newnode;
   }
-  qsort(processesOrigin,10,sizeof(NODE*),compareArrivalTime);
-  for(int i =0; i<processCount;i++){
+  qsort(processesOrigin,PROCESSCOUNT,sizeof(NODE*),compareArrivalTime);
+  for(int i =0; i<PROCESSCOUNT;i++){
+    totalBurst += processesOrigin[i] -> process -> burstTime + processesOrigin[i] -> process -> IO_burst;
     printf("P%d\n",processesOrigin[i] -> process -> PID);
     printf("arrivalTime : %d\n",processesOrigin[i] -> process -> arrivalTime);
     printf("burstTime : %d\n",processesOrigin[i] -> process -> burstTime);
@@ -26,8 +27,18 @@ int main(){
     printf("IO_burst : %d\n",processesOrigin[i] -> process -> IO_burst);
     printf("priority : %d\n",processesOrigin[i] -> process -> priority);
   }
-  FCFS(processesOrigin,processCount);
-  
+  printf("\n------FCFS-----------------------------------------------------------------------------------------------------------\n");
+  FCFS(processesOrigin,totalBurst);
+  printf("\n------SJF------------------------------------------------------------------------------------------------------------\n");
+  SJF(processesOrigin,totalBurst);
+  printf("\n------Priority-------------------------------------------------------------------------------------------------------\n");
+  priority(processesOrigin,totalBurst);
+  printf("\n------RR-------------------------------------------------------------------------------------------------------------\n");
+  RR(processesOrigin,totalBurst,timeQuantum);
+  printf("\n------preemtiveSJF---------------------------------------------------------------------------------------------------\n");
+  preemtiveSJF(processesOrigin,totalBurst);
+  printf("\n------preemtivePriority----------------------------------------------------------------------------------------------\n");
+  preemtivePriority(processesOrigin,totalBurst);
   return 0;
 }
 
@@ -36,7 +47,7 @@ PROCESS* createProcess(int PID, int arrivalTime, int burstTime, int IO_burst, in
   newProcess -> PID = PID;
   newProcess -> arrivalTime = arrivalTime;
   newProcess -> burstTime = burstTime;
-  newProcess -> IO_requestTime = burstTime - rand()%burstTime;
+  newProcess -> IO_requestTime = rand()%burstTime + 1;
   newProcess -> IO_burst = IO_burst;
   newProcess -> priority = priority;
   return newProcess;
@@ -47,9 +58,9 @@ QUEUE* createQueue(){
   queue -> out = NULL;
   return queue;
 }
-NODE** copyProcesses(NODE** processesOrigin, const processCount){
-  NODE **copy = malloc(processCount*sizeof(NODE*));
-  for (int i=0;i<processCount;i++) {
+NODE** copyProcesses(NODE** processesOrigin){
+  NODE **copy = malloc(PROCESSCOUNT*sizeof(NODE*));
+  for (int i=0;i<PROCESSCOUNT;i++) {
       NODE* newnode = (NODE*)malloc(sizeof(NODE));
       newnode -> process = (PROCESS*)malloc(sizeof(PROCESS));
       *(newnode -> process) = *(processesOrigin[i]->process);
@@ -58,15 +69,28 @@ NODE** copyProcesses(NODE** processesOrigin, const processCount){
   }
   return copy;
 }
-void insertQueue(QUEUE* queue,NODE* node){
-  if(queue -> in == NULL){
+void InsertQueue(QUEUE* queue ,NODE* node){
+  if(queue -> out == NULL){
+    queue -> out = node;
     queue -> in = node;
-    queue ->out = node;
   }else{
     queue -> in -> next = node;
     queue -> in = node;
   }
 }
+void InsertReadyQueue(QUEUE* readyQueue,NODE** processes,int clock,int* index){
+  NODE* node = NULL;
+  while(*index < PROCESSCOUNT){
+    node = processes[*index];
+    if(node -> process -> arrivalTime == clock){
+      InsertQueue(readyQueue,node);
+      *index+=1;
+    }else{
+      break;
+    }
+  }    
+}
+
 int compareArrivalTime(const void *a, const void *b){
   NODE * nodeA = *(NODE**)a;
   NODE * nodeB = *(NODE**)b;
@@ -89,22 +113,44 @@ void printClock(int clock){
   }
   printf("|\n");
 }
-void IO_request(QUEUE* queue, NODE* ptr,int* clock){
-  do{
-      ptr -> process -> IO_burst -= 1;
-      printf("idle ");
-      *clock += 1;
-      if(*clock%25 == 0){
-        printf("\n\n");
-        printClock(*clock);
+void IO_request(QUEUE* readyQueue,QUEUE* waitingQueue, NODE* ptr){
+  if(readyQueue -> out -> next == NULL){
+    readyQueue -> out = NULL;
+    readyQueue -> in = NULL;
+  }else{
+    readyQueue -> out = ptr -> next;
+  }
+  ptr -> next = NULL;
+  InsertQueue(waitingQueue,ptr);
+  
+  
+}
+void IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue){
+  NODE* pre = NULL;
+  NODE* loc = waitingQueue -> out;
+  while(loc != NULL){
+    loc -> process ->IO_burst -= 1;
+    if(loc -> process -> IO_burst == 0){
+      NODE* temp = loc -> next;
+      if(pre == NULL){
+        waitingQueue -> out = loc -> next;
+        if(waitingQueue -> out == NULL){
+          waitingQueue -> in = NULL;
+        }
+        
+      }else{
+        pre -> next = loc -> next;
+        if(loc->next == NULL){
+          waitingQueue -> in = pre;
+        }
       }
-    }while(ptr -> process -> IO_burst != 0);
-    ptr -> process -> IO_requestTime = -1;
-    if(ptr -> next != NULL){
-      queue -> out = ptr -> next;
-      queue -> in -> next = ptr;
-      queue -> in = ptr;
-      ptr -> next = NULL;
+      loc -> process ->IO_requestTime = -1;
+      loc->next = NULL;
+      InsertQueue(readyQueue,loc);
+      loc = temp;
+    }else{
+      pre = loc;
+      loc = loc -> next;
     }
-    
+  }
 }

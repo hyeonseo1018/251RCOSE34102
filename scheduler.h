@@ -1,3 +1,4 @@
+#define PROCESSCOUNT 10
 typedef struct{
   int PID;
   int arrivalTime;
@@ -19,9 +20,35 @@ typedef struct{
 
 PROCESS* createProcess(int PID, int arrivalTime, int burstTime, int IO_burst, int priority);
 QUEUE* createQueue();
-void insertQueue(QUEUE* queue, NODE* node);
+NODE** copyProcesses(NODE**processesOrigin);
 int compareArrivalTime(const void * a , const void * b);
-void IO_request(QUEUE* queue, NODE* ptr ,int* clock);
+void IO_request(QUEUE* readyQueue,QUEUE* waitingQueue, NODE* ptr);
+void IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue);
 void printClock(int clock);
-void FCFS(NODE**processesOrigin,const int processCount);
-NODE** copyProcesses(NODE**processesOrigin, const int processCount);
+void FCFS(NODE**processesOrigin,int totalBurst);
+void SJF(NODE**processesOrigin,int totalBurst);
+void priority(NODE**processesOrigin,int totalBurst);
+void RR(NODE**processesOrigin,int totalBurst,int timeQuantum);
+void preemtiveSJF(NODE**processesOrigin,int totalBurst);
+void preemtivePriority(NODE**processesOrigin,int totalBurst);
+
+void InsertQueue(QUEUE* queue ,NODE* node);
+void InsertReadyQueue(QUEUE* readyQueue, NODE** processes,int clock,int* index);
+
+void SJFInsertReadyQueue(QUEUE* readyQueue, NODE** processes, int clock,int*index);
+void SJF_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue);
+void SJFInsertQueue(QUEUE* queue, NODE*node);
+
+void preemtiveSJFInsertReadyQueue(QUEUE* readyQueue, NODE** processes, int clock,int*index);
+void preemtiveSJF_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue);
+void preemtiveSJFInsertQueue(QUEUE* queue, NODE* node);
+
+void priorityInsertReadyQueue(QUEUE* readyQueue, NODE** processes, int clock,int*index);
+void priority_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue);
+void priorityInsertQueue(QUEUE* queue, NODE*node);
+
+void preemtivePriorityInsertReadyQueue(QUEUE* readyQueue, NODE** processes, int clock,int*index);
+void preemtivePriority_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue);
+void preemtivePriorityInsertQueue(QUEUE* queue, NODE*node);
+
+void timerEvent(QUEUE* queue, NODE*node);
