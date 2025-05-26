@@ -35,10 +35,10 @@ int main(){
   priority(processesOrigin,totalBurst);
   printf("\n------RR-------------------------------------------------------------------------------------------------------------\n");
   RR(processesOrigin,totalBurst,timeQuantum);
-  printf("\n------preemtiveSJF---------------------------------------------------------------------------------------------------\n");
-  preemtiveSJF(processesOrigin,totalBurst);
-  printf("\n------preemtivePriority----------------------------------------------------------------------------------------------\n");
-  preemtivePriority(processesOrigin,totalBurst);
+  printf("\n------preemptiveSJF--------------------------------------------------------------------------------------------------\n");
+  preemptiveSJF(processesOrigin,totalBurst);
+  printf("\n------preemptivePriority---------------------------------------------------------------------------------------------\n");
+  preemptivePriority(processesOrigin,totalBurst);
   return 0;
 }
 
@@ -102,8 +102,10 @@ void printClock(int clock){
       printf("%d    ",i);
     }else if(i<100){
       printf("%d   ",i);
-    }else{
+    }else if(i<1000){
       printf("%d  ",i);
+    }else{
+      printf("%d ",i);
     }
     
   }

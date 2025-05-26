@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "scheduler.h"
 
-void preemtiveSJF(NODE** processesOrigin,int totalBurst){
+void preemptivePriority(NODE** processesOrigin,int totalBurst){
   int turnAroundTime = 0;
   QUEUE* readyQueue = (QUEUE*)malloc(sizeof(QUEUE));
   QUEUE* waitingQueue = (QUEUE*)malloc(sizeof(QUEUE));
@@ -11,7 +11,7 @@ void preemtiveSJF(NODE** processesOrigin,int totalBurst){
   NODE** processes = copyProcesses(processesOrigin);
   int index = 0;
   int clock = 0;
-  preemtiveSJFInsertReadyQueue(readyQueue,processes,clock,&index);
+  preemptivePriorityInsertReadyQueue(readyQueue,processes,clock,&index);
   printClock(clock);
   do{
     NODE* ptr = readyQueue -> out;
@@ -20,10 +20,10 @@ void preemtiveSJF(NODE** processesOrigin,int totalBurst){
       IO_request(readyQueue,waitingQueue,ptr);
       }else{
         ptr -> process -> burstTime -= 1;
-        if(waitingQueue->out!=NULL)preemtiveSJF_IO_processing(readyQueue,waitingQueue);
+        if(waitingQueue->out!=NULL)preemptivePriority_IO_processing(readyQueue,waitingQueue);
         printf("P%d   ",ptr -> process->PID);
         clock += 1;
-        preemtiveSJFInsertReadyQueue(readyQueue,processes,clock,&index);
+        preemptivePriorityInsertReadyQueue(readyQueue,processes,clock,&index);
         if(clock%25 == 0){
           printf("\n\n");
           printClock(clock);
@@ -37,10 +37,10 @@ void preemtiveSJF(NODE** processesOrigin,int totalBurst){
         }
       }
     }else{
-      if(waitingQueue->out!=NULL)preemtiveSJF_IO_processing(readyQueue,waitingQueue);
+      if(waitingQueue->out!=NULL)preemptivePriority_IO_processing(readyQueue,waitingQueue);
       printf("idle ");
       clock +=1;
-      preemtiveSJFInsertReadyQueue(readyQueue,processes,clock,&index);
+      preemptivePriorityInsertReadyQueue(readyQueue,processes,clock,&index);
       if(clock%25 == 0){
         printf("\n\n");
         printClock(clock);
@@ -54,12 +54,12 @@ void preemtiveSJF(NODE** processesOrigin,int totalBurst){
   printf("turnaround time : %d\n",turnAroundTime);
   printf("waiting time : %d\n",turnAroundTime - totalBurst);
 }
-void preemtiveSJFInsertReadyQueue(QUEUE* readyQueue,NODE** processes,int clock,int* index){
+void preemptivePriorityInsertReadyQueue(QUEUE* readyQueue,NODE** processes,int clock,int* index){
   NODE* node = NULL;
   while(*index < PROCESSCOUNT){
     node = processes[*index];
     if(node -> process -> arrivalTime == clock){
-      preemtiveSJFInsertQueue(readyQueue,node);
+      preemptivePriorityInsertQueue(readyQueue,node);
       *index+=1;
     }else{
       break;
@@ -68,7 +68,7 @@ void preemtiveSJFInsertReadyQueue(QUEUE* readyQueue,NODE** processes,int clock,i
   
 }
 
-void preemtiveSJF_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue){
+void preemptivePriority_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue){
   NODE* pre = NULL;
   NODE* loc = waitingQueue -> out;
   while(loc != NULL){
@@ -89,7 +89,7 @@ void preemtiveSJF_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue){
       }
       loc -> process ->IO_requestTime = -1;
       loc->next = NULL;
-      preemtiveSJFInsertQueue(readyQueue,loc);
+      preemptivePriorityInsertQueue(readyQueue,loc);
       loc = temp;
     }else{
       pre = loc;
@@ -97,22 +97,22 @@ void preemtiveSJF_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue){
     }
   }
 }
-void preemtiveSJFInsertQueue(QUEUE* queue, NODE* node){
+void preemptivePriorityInsertQueue(QUEUE* queue, NODE* node){
   if(queue -> out == NULL){
     queue -> out = node;
     queue -> in = node;
   }else{
     NODE* ptr = queue->out;
-    if(ptr -> process -> burstTime > node -> process -> burstTime){
+    if(ptr -> process -> priority > node -> process -> priority){
       node -> next = queue -> out -> next;
       if(node -> next == NULL){
         queue -> in = node;
       }
       queue -> out = node;
-      preemtiveSJFInsertQueue(queue,ptr);
+      preemptivePriorityInsertQueue(queue,ptr);
       
     }else{
-      while(ptr -> next != NULL && (ptr -> next -> process -> burstTime < node -> process -> burstTime)){
+      while(ptr -> next != NULL && (ptr -> next -> process -> priority < node -> process -> priority)){
       ptr = ptr -> next;
       }
       if(ptr -> next == NULL){

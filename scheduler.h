@@ -29,8 +29,8 @@ void FCFS(NODE**processesOrigin,int totalBurst);
 void SJF(NODE**processesOrigin,int totalBurst);
 void priority(NODE**processesOrigin,int totalBurst);
 void RR(NODE**processesOrigin,int totalBurst,int timeQuantum);
-void preemtiveSJF(NODE**processesOrigin,int totalBurst);
-void preemtivePriority(NODE**processesOrigin,int totalBurst);
+void preemptiveSJF(NODE**processesOrigin,int totalBurst);
+void preemptivePriority(NODE**processesOrigin,int totalBurst);
 
 void InsertQueue(QUEUE* queue ,NODE* node);
 void InsertReadyQueue(QUEUE* readyQueue, NODE** processes,int clock,int* index);
@@ -39,16 +39,16 @@ void SJFInsertReadyQueue(QUEUE* readyQueue, NODE** processes, int clock,int*inde
 void SJF_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue);
 void SJFInsertQueue(QUEUE* queue, NODE*node);
 
-void preemtiveSJFInsertReadyQueue(QUEUE* readyQueue, NODE** processes, int clock,int*index);
-void preemtiveSJF_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue);
-void preemtiveSJFInsertQueue(QUEUE* queue, NODE* node);
+void preemptiveSJFInsertReadyQueue(QUEUE* readyQueue, NODE** processes, int clock,int*index);
+void preemptiveSJF_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue);
+void preemptiveSJFInsertQueue(QUEUE* queue, NODE* node);
 
 void priorityInsertReadyQueue(QUEUE* readyQueue, NODE** processes, int clock,int*index);
 void priority_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue);
 void priorityInsertQueue(QUEUE* queue, NODE*node);
 
-void preemtivePriorityInsertReadyQueue(QUEUE* readyQueue, NODE** processes, int clock,int*index);
-void preemtivePriority_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue);
-void preemtivePriorityInsertQueue(QUEUE* queue, NODE*node);
+void preemptivePriorityInsertReadyQueue(QUEUE* readyQueue, NODE** processes, int clock,int*index);
+void preemptivePriority_IO_processing(QUEUE* readyQueue,QUEUE* waitingQueue);
+void preemptivePriorityInsertQueue(QUEUE* queue, NODE*node);
 
 void timerEvent(QUEUE* queue, NODE*node);
