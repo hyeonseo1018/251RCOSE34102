@@ -106,7 +106,7 @@ void priorityInsertQueue(QUEUE* queue, NODE* node){
     queue -> in = node; 
   }else{
     NODE* ptr = queue->out;
-    while(ptr -> next != NULL && (ptr ->next-> process -> priority < node -> process -> priority)){
+    while(ptr -> next != NULL && (ptr ->next-> process -> priority <= node -> process -> priority)){
       ptr = ptr -> next;
     }
     if(ptr -> next == NULL){

@@ -106,7 +106,7 @@ void SJFInsertQueue(QUEUE* queue, NODE* node){
     queue -> in = node; 
   }else{
     NODE* ptr = queue->out;
-    while(ptr -> next != NULL && (ptr ->next-> process -> burstTime < node -> process -> burstTime)){
+    while(ptr -> next != NULL && (ptr ->next-> process -> burstTime <= node -> process -> burstTime)){
       ptr = ptr -> next;
     }
     if(ptr -> next == NULL){

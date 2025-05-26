@@ -17,21 +17,22 @@ void preemptivePriority(NODE** processesOrigin,int totalBurst){
       if(ptr -> process -> burstTime == ptr -> process -> IO_requestTime){
       IO_request(readyQueue,waitingQueue,ptr);
       }else{
-        ptr -> process -> burstTime -= 1;
         if(waitingQueue->out!=NULL)preemptivePriority_IO_processing(readyQueue,waitingQueue);
+        ptr -> process -> burstTime -= 1;
         printf("P%d   ",ptr -> process->PID);
         clock += 1;
-        preemptivePriorityInsertReadyQueue(readyQueue,processes,clock,&index);
-        if(clock%25 == 0){
-          printf("\n\n");
-          printClock(clock);
-        }
+        
         
         if(ptr -> process -> burstTime == 0){
           turnAroundTime += clock - ptr -> process -> arrivalTime;
           readyQueue -> out = ptr -> next;
           free(ptr -> process);
           free(ptr);
+        }
+        preemptivePriorityInsertReadyQueue(readyQueue,processes,clock,&index);
+        if(clock%25 == 0){
+          printf("\n\n");
+          printClock(clock);
         }
       }
     }else{
@@ -111,8 +112,11 @@ void preemptivePriorityInsertQueue(QUEUE* queue, NODE* node){
       queue -> out = node;
       preemptivePriorityInsertQueue(queue,ptr);
       
-    }else{
-      while(ptr -> next != NULL && (ptr -> next -> process -> priority < node -> process -> priority)){
+    }else if (queue -> out -> next == NULL){
+    queue -> out -> next = node;
+    queue -> in = node; 
+  }else{
+      while(ptr -> next != NULL && (ptr -> next -> process -> priority <= node -> process -> priority)){
       ptr = ptr -> next;
       }
       if(ptr -> next == NULL){
